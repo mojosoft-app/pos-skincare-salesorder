@@ -1,0 +1,38 @@
+# Add your .gitignore rules here
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.log
+
+# Vendor
+vendor/
+
+# Binary
+bin/
+*.exe
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
