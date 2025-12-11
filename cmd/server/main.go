@@ -57,9 +57,11 @@ func main() {
 	// Initialize handlers
 	healthHandler := handlers.NewHealthHandler(healthCheckDB)
 	salesOrderStatusHandler := handlers.NewSalesOrderStatusHandler(healthCheckDB)
+	salesOrderHandler := handlers.NewSalesOrderHandler(healthCheckDB)
+	salesOrderServiceHandler := handlers.NewSalesOrderServiceHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -138,6 +140,8 @@ func setupRouter(
 	jwtUtil *utils.JWTUtil,
 	healthHandler *handlers.HealthHandler,
 	salesOrderStatusHandler *handlers.SalesOrderStatusHandler,
+	salesOrderHandler *handlers.SalesOrderHandler,
+	salesOrderServiceHandler *handlers.SalesOrderServiceHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -170,17 +174,27 @@ func setupRouter(
 			statusGroup.GET("/:id", salesOrderStatusHandler.GetByID)
 		}
 
-		// Example protected endpoint (JWT required)
+		// Sales Order CRUD endpoints (JWT required)
 		salesOrders := api.Group("/sales-orders")
 		salesOrders.Use(middleware.AuthMiddleware(jwtUtil))
 		{
-			salesOrders.GET("", func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{
-					"message": "Sales Order service is ready",
-					"service": "pos-mojosoft-so-service",
-					"note":    "Endpoints will be implemented based on your design",
-				})
-			})
+			salesOrders.GET("", salesOrderHandler.GetAll)
+			salesOrders.GET("/:id", salesOrderHandler.GetByID)
+			salesOrders.POST("", salesOrderHandler.Create)
+			salesOrders.PUT("/:id", salesOrderHandler.Update)
+			salesOrders.DELETE("/:id", salesOrderHandler.Delete)
+		}
+
+		// Sales Order Service CRUD endpoints (JWT required)
+		salesOrderServices := api.Group("/sales-order-services")
+		salesOrderServices.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			salesOrderServices.GET("", salesOrderServiceHandler.GetAll)
+			salesOrderServices.GET("/:id", salesOrderServiceHandler.GetByID)
+			salesOrderServices.POST("", salesOrderServiceHandler.Create)
+			salesOrderServices.PUT("/:id", salesOrderServiceHandler.Update)
+			salesOrderServices.DELETE("/:id", salesOrderServiceHandler.Delete)
+			salesOrderServices.PATCH("/:id/mark-treated", salesOrderServiceHandler.MarkAsTreated)
 		}
 	}
 

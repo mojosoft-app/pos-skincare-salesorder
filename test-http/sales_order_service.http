@@ -1,0 +1,65 @@
+### Get All Sales Order Services
+GET http://localhost:8080/so/api/sales-order-services
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get All Sales Order Services with Filters
+GET http://localhost:8080/so/api/sales-order-services?sales_order_id=123&treated=false
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get Sales Order Service by ID
+GET http://localhost:8080/so/api/sales-order-services/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Create New Sales Order Service
+POST http://localhost:8080/so/api/sales-order-services
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "sales_order_id": 123,
+  "sales_order_detail_id": 1,
+  "service_id": 5,
+  "treatment_id": null,
+  "service_name": "Facial Treatment",
+  "treated": false,
+  "schedule": "2025-12-15",
+  "reminded_id": 1,
+  "message_log_detail_id": null
+}
+
+### Update Sales Order Service
+PUT http://localhost:8080/so/api/sales-order-services/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "sales_order_id": 123,
+  "sales_order_detail_id": 1,
+  "service_id": 5,
+  "treatment_id": 10,
+  "service_name": "Facial Treatment - Updated",
+  "treated": false,
+  "schedule": "2025-12-20",
+  "reminded_id": 2,
+  "message_log_detail_id": "MSG-001"
+}
+
+### Mark Service as Treated
+PATCH http://localhost:8080/so/api/sales-order-services/1/mark-treated
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Delete Sales Order Service (Soft Delete)
+DELETE http://localhost:8080/so/api/sales-order-services/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN

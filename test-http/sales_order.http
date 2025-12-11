@@ -1,0 +1,99 @@
+### Get All Sales Orders
+GET http://localhost:8080/so/api/sales-orders
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get All Sales Orders with Filters
+GET http://localhost:8080/so/api/sales-orders?status_id=1&customer_id=123
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get Sales Order by ID
+GET http://localhost:8080/so/api/sales-orders/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Create New Sales Order
+POST http://localhost:8080/so/api/sales-orders
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "customer_id": 123,
+  "location_id": 1,
+  "doc_date": "2025-12-11",
+  "inv_number": "INV-2025-001",
+  "address": "Jl. Contoh No. 123, Jakarta",
+  "delivery_cost": 50000,
+  "total_amount": 500000,
+  "total_payment": 500000,
+  "outstanding": 0,
+  "total_voucher": 0,
+  "additional_cost": 0,
+  "previous_payment": 0,
+  "fully_paid": true,
+  "note": "Sales order pertama",
+  "status_id": 1,
+  "details": [
+    {
+      "item_id": 1,
+      "unit_id": 1,
+      "item_name": "Produk A",
+      "quantity": 2,
+      "price": 150000,
+      "item_total": 300000,
+      "discount_pct": 0
+    },
+    {
+      "item_id": 2,
+      "unit_id": 1,
+      "item_name": "Produk B",
+      "quantity": 1,
+      "price": 200000,
+      "item_total": 200000,
+      "discount_pct": 0
+    }
+  ],
+  "services": [
+    {
+      "service_id": 1,
+      "service_name": "Treatment A",
+      "treated": false,
+      "schedule": "2025-12-15"
+    }
+  ]
+}
+
+### Update Sales Order
+PUT http://localhost:8080/so/api/sales-orders/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "customer_id": 123,
+  "location_id": 1,
+  "doc_date": "2025-12-11",
+  "inv_number": "INV-2025-001-UPDATED",
+  "address": "Jl. Contoh No. 123, Jakarta",
+  "delivery_cost": 50000,
+  "total_amount": 600000,
+  "total_payment": 300000,
+  "outstanding": 300000,
+  "total_voucher": 0,
+  "additional_cost": 0,
+  "previous_payment": 0,
+  "fully_paid": false,
+  "note": "Sales order updated",
+  "status_id": 2
+}
+
+### Delete Sales Order (Soft Delete)
+DELETE http://localhost:8080/so/api/sales-orders/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
