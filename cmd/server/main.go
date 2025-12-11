@@ -60,9 +60,10 @@ func main() {
 	salesOrderHandler := handlers.NewSalesOrderHandler(healthCheckDB)
 	salesOrderServiceHandler := handlers.NewSalesOrderServiceHandler(healthCheckDB)
 	salesOrderDetailHandler := handlers.NewSalesOrderDetailHandler(healthCheckDB)
+	remindedHandler := handlers.NewRemindedHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -144,6 +145,7 @@ func setupRouter(
 	salesOrderHandler *handlers.SalesOrderHandler,
 	salesOrderServiceHandler *handlers.SalesOrderServiceHandler,
 	salesOrderDetailHandler *handlers.SalesOrderDetailHandler,
+	remindedHandler *handlers.RemindedHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -209,6 +211,14 @@ func setupRouter(
 			salesOrderDetails.POST("", salesOrderDetailHandler.Create)
 			salesOrderDetails.PUT("/:id", salesOrderDetailHandler.Update)
 			salesOrderDetails.DELETE("/:id", salesOrderDetailHandler.Delete)
+		}
+
+		// Reminded endpoints (JWT required, read-only)
+		reminded := api.Group("/reminded")
+		reminded.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			reminded.GET("", remindedHandler.GetAll)
+			reminded.GET("/:id", remindedHandler.GetByID)
 		}
 	}
 
