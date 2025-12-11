@@ -61,9 +61,10 @@ func main() {
 	salesOrderServiceHandler := handlers.NewSalesOrderServiceHandler(healthCheckDB)
 	salesOrderDetailHandler := handlers.NewSalesOrderDetailHandler(healthCheckDB)
 	remindedHandler := handlers.NewRemindedHandler(healthCheckDB)
+	arReceiptHandler := handlers.NewARReceiptHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -146,6 +147,7 @@ func setupRouter(
 	salesOrderServiceHandler *handlers.SalesOrderServiceHandler,
 	salesOrderDetailHandler *handlers.SalesOrderDetailHandler,
 	remindedHandler *handlers.RemindedHandler,
+	arReceiptHandler *handlers.ARReceiptHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -219,6 +221,17 @@ func setupRouter(
 		{
 			reminded.GET("", remindedHandler.GetAll)
 			reminded.GET("/:id", remindedHandler.GetByID)
+		}
+
+		// AR Receipt CRUD endpoints (JWT required)
+		arReceipts := api.Group("/ar-receipts")
+		arReceipts.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			arReceipts.GET("", arReceiptHandler.GetAll)
+			arReceipts.GET("/:id", arReceiptHandler.GetByID)
+			arReceipts.POST("", arReceiptHandler.Create)
+			arReceipts.PUT("/:id", arReceiptHandler.Update)
+			arReceipts.DELETE("/:id", arReceiptHandler.Delete)
 		}
 	}
 
