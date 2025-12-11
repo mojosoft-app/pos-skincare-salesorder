@@ -62,9 +62,10 @@ func main() {
 	salesOrderDetailHandler := handlers.NewSalesOrderDetailHandler(healthCheckDB)
 	remindedHandler := handlers.NewRemindedHandler(healthCheckDB)
 	arReceiptHandler := handlers.NewARReceiptHandler(healthCheckDB)
+	arReceiptDetailHandler := handlers.NewARReceiptDetailHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -148,6 +149,7 @@ func setupRouter(
 	salesOrderDetailHandler *handlers.SalesOrderDetailHandler,
 	remindedHandler *handlers.RemindedHandler,
 	arReceiptHandler *handlers.ARReceiptHandler,
+	arReceiptDetailHandler *handlers.ARReceiptDetailHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -232,6 +234,18 @@ func setupRouter(
 			arReceipts.POST("", arReceiptHandler.Create)
 			arReceipts.PUT("/:id", arReceiptHandler.Update)
 			arReceipts.DELETE("/:id", arReceiptHandler.Delete)
+		}
+
+		// AR Receipt Detail CRUD endpoints (JWT required)
+		arReceiptDetails := api.Group("/ar-receipt-details")
+		arReceiptDetails.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			arReceiptDetails.GET("", arReceiptDetailHandler.GetAll)
+			arReceiptDetails.GET("/:id", arReceiptDetailHandler.GetByID)
+			arReceiptDetails.GET("/by-ar-receipt/:ar_receipt_id", arReceiptDetailHandler.GetByARReceiptID)
+			arReceiptDetails.POST("", arReceiptDetailHandler.Create)
+			arReceiptDetails.PUT("/:id", arReceiptDetailHandler.Update)
+			arReceiptDetails.DELETE("/:id", arReceiptDetailHandler.Delete)
 		}
 	}
 

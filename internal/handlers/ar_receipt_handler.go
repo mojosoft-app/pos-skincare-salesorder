@@ -20,19 +20,19 @@ func NewARReceiptHandler(db *gorm.DB) *ARReceiptHandler {
 
 // CreateARReceiptRequest represents the request body for creating an AR receipt
 type CreateARReceiptRequest struct {
-	LocationID      *int                          `json:"location_id"`
-	CustomerID      *int                          `json:"customer_id" binding:"required"`
-	PaymentMethodID *int                          `json:"payment_method_id"`
-	DocNumber       *int                          `json:"doc_number"`
-	DocDate         *string                       `json:"doc_date"`
-	PostedDate      *string                       `json:"posted_date"`
-	TotalAmount     *float64                      `json:"total_amount"`
-	Note            *string                       `json:"note"`
-	StatusID        *int                          `json:"status_id"`
-	Details         []CreateARReceiptDetailRequest `json:"details"`
+	LocationID      *int                               `json:"location_id"`
+	CustomerID      *int                               `json:"customer_id" binding:"required"`
+	PaymentMethodID *int                               `json:"payment_method_id"`
+	DocNumber       *int                               `json:"doc_number"`
+	DocDate         *string                            `json:"doc_date"`
+	PostedDate      *string                            `json:"posted_date"`
+	TotalAmount     *float64                           `json:"total_amount"`
+	Note            *string                            `json:"note"`
+	StatusID        *int                               `json:"status_id"`
+	Details         []ARReceiptDetailNestedRequest `json:"details"`
 }
 
-type CreateARReceiptDetailRequest struct {
+type ARReceiptDetailNestedRequest struct {
 	SalesOrderID  *int     `json:"sales_order_id"`
 	ReceiptAmount *float64 `json:"receipt_amount"`
 }
