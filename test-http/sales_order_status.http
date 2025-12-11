@@ -1,0 +1,11 @@
+### Get All Sales Order Statuses
+GET http://localhost:8080/so/api/sales-order-status
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get Sales Order Status by ID
+GET http://localhost:8080/so/api/sales-order-status/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN

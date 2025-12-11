@@ -56,9 +56,10 @@ func main() {
 
 	// Initialize handlers
 	healthHandler := handlers.NewHealthHandler(healthCheckDB)
+	salesOrderStatusHandler := handlers.NewSalesOrderStatusHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -136,6 +137,7 @@ func setupRouter(
 	cfg *config.Config,
 	jwtUtil *utils.JWTUtil,
 	healthHandler *handlers.HealthHandler,
+	salesOrderStatusHandler *handlers.SalesOrderStatusHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -160,6 +162,14 @@ func setupRouter(
 	api := router.Group("/so/api")
 	api.Use(middleware.TenantMiddleware())
 	{
+		// Sales Order Status endpoints (JWT required)
+		statusGroup := api.Group("/sales-order-status")
+		statusGroup.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			statusGroup.GET("", salesOrderStatusHandler.GetAll)
+			statusGroup.GET("/:id", salesOrderStatusHandler.GetByID)
+		}
+
 		// Example protected endpoint (JWT required)
 		salesOrders := api.Group("/sales-orders")
 		salesOrders.Use(middleware.AuthMiddleware(jwtUtil))
