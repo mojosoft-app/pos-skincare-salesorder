@@ -59,9 +59,10 @@ func main() {
 	salesOrderStatusHandler := handlers.NewSalesOrderStatusHandler(healthCheckDB)
 	salesOrderHandler := handlers.NewSalesOrderHandler(healthCheckDB)
 	salesOrderServiceHandler := handlers.NewSalesOrderServiceHandler(healthCheckDB)
+	salesOrderDetailHandler := handlers.NewSalesOrderDetailHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -142,6 +143,7 @@ func setupRouter(
 	salesOrderStatusHandler *handlers.SalesOrderStatusHandler,
 	salesOrderHandler *handlers.SalesOrderHandler,
 	salesOrderServiceHandler *handlers.SalesOrderServiceHandler,
+	salesOrderDetailHandler *handlers.SalesOrderDetailHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -195,6 +197,18 @@ func setupRouter(
 			salesOrderServices.PUT("/:id", salesOrderServiceHandler.Update)
 			salesOrderServices.DELETE("/:id", salesOrderServiceHandler.Delete)
 			salesOrderServices.PATCH("/:id/mark-treated", salesOrderServiceHandler.MarkAsTreated)
+		}
+
+		// Sales Order Detail CRUD endpoints (JWT required)
+		salesOrderDetails := api.Group("/sales-order-details")
+		salesOrderDetails.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			salesOrderDetails.GET("", salesOrderDetailHandler.GetAll)
+			salesOrderDetails.GET("/:id", salesOrderDetailHandler.GetByID)
+			salesOrderDetails.GET("/by-sales-order/:sales_order_id", salesOrderDetailHandler.GetBySalesOrderID)
+			salesOrderDetails.POST("", salesOrderDetailHandler.Create)
+			salesOrderDetails.PUT("/:id", salesOrderDetailHandler.Update)
+			salesOrderDetails.DELETE("/:id", salesOrderDetailHandler.Delete)
 		}
 	}
 

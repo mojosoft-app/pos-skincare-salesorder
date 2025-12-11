@@ -1,0 +1,81 @@
+### Get All Sales Order Details
+GET http://localhost:8080/so/api/sales-order-details
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get All Sales Order Details with Filters
+GET http://localhost:8080/so/api/sales-order-details?sales_order_id=123&item_id=5
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get Sales Order Detail by ID
+GET http://localhost:8080/so/api/sales-order-details/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get Sales Order Details by Sales Order ID
+GET http://localhost:8080/so/api/sales-order-details/by-sales-order/123
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Create New Sales Order Detail
+POST http://localhost:8080/so/api/sales-order-details
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "sales_order_id": 123,
+  "item_id": 10,
+  "unit_id": 1,
+  "promoter_id": 5,
+  "item_name": "Serum Vitamin C",
+  "quantity": 2,
+  "price": 250000,
+  "discount_pct": 10,
+  "used_sessions": 0
+}
+
+### Create Sales Order Detail (Auto Calculate Item Total)
+POST http://localhost:8080/so/api/sales-order-details
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "sales_order_id": 123,
+  "item_id": 11,
+  "unit_id": 1,
+  "item_name": "Facial Cream Premium",
+  "quantity": 3,
+  "price": 150000,
+  "discount_pct": 15
+}
+
+### Update Sales Order Detail
+PUT http://localhost:8080/so/api/sales-order-details/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
+
+{
+  "sales_order_id": 123,
+  "item_id": 10,
+  "unit_id": 1,
+  "promoter_id": 6,
+  "item_name": "Serum Vitamin C - Updated",
+  "quantity": 3,
+  "price": 250000,
+  "discount_pct": 15,
+  "used_sessions": 0
+}
+
+### Delete Sales Order Detail (Soft Delete)
+DELETE http://localhost:8080/so/api/sales-order-details/1
+Content-Type: application/json
+X-Tenant-Code: YOUR_TENANT_CODE
+Authorization: Bearer YOUR_JWT_TOKEN
