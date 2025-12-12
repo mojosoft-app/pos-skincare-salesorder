@@ -64,9 +64,10 @@ func main() {
 	arReceiptHandler := handlers.NewARReceiptHandler(healthCheckDB)
 	arReceiptDetailHandler := handlers.NewARReceiptDetailHandler(healthCheckDB)
 	treatmentHandler := handlers.NewTreatmentHandler(healthCheckDB)
+	treatmentDetailHandler := handlers.NewTreatmentDetailHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -152,6 +153,7 @@ func setupRouter(
 	arReceiptHandler *handlers.ARReceiptHandler,
 	arReceiptDetailHandler *handlers.ARReceiptDetailHandler,
 	treatmentHandler *handlers.TreatmentHandler,
+	treatmentDetailHandler *handlers.TreatmentDetailHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -259,6 +261,18 @@ func setupRouter(
 			treatments.POST("", treatmentHandler.Create)
 			treatments.PUT("/:id", treatmentHandler.Update)
 			treatments.DELETE("/:id", treatmentHandler.Delete)
+		}
+
+		// Treatment Detail CRUD endpoints (JWT required)
+		treatmentDetails := api.Group("/treatment-details")
+		treatmentDetails.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			treatmentDetails.GET("", treatmentDetailHandler.GetAll)
+			treatmentDetails.GET("/:id", treatmentDetailHandler.GetByID)
+			treatmentDetails.GET("/by-treatment/:treatment_id", treatmentDetailHandler.GetByTreatmentID)
+			treatmentDetails.POST("", treatmentDetailHandler.Create)
+			treatmentDetails.PUT("/:id", treatmentDetailHandler.Update)
+			treatmentDetails.DELETE("/:id", treatmentDetailHandler.Delete)
 		}
 	}
 
