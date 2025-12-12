@@ -68,9 +68,10 @@ func main() {
 	summaryByTransactionTypeHandler := handlers.NewSummaryByTransactionTypeHandler(healthCheckDB)
 	summaryByPaymentMethodHandler := handlers.NewSummaryByPaymentMethodHandler(healthCheckDB)
 	summaryByTransactionTypeAndPaymentMethodHandler := handlers.NewSummaryByTransactionTypeAndPaymentMethodHandler(healthCheckDB)
+	bookkeepingHandler := handlers.NewBookkeepingHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -160,6 +161,7 @@ func setupRouter(
 	summaryByTransactionTypeHandler *handlers.SummaryByTransactionTypeHandler,
 	summaryByPaymentMethodHandler *handlers.SummaryByPaymentMethodHandler,
 	summaryByTransactionTypeAndPaymentMethodHandler *handlers.SummaryByTransactionTypeAndPaymentMethodHandler,
+	bookkeepingHandler *handlers.BookkeepingHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -315,6 +317,18 @@ func setupRouter(
 			summaryByTransactionTypeAndPaymentMethod.POST("", summaryByTransactionTypeAndPaymentMethodHandler.Create)
 			summaryByTransactionTypeAndPaymentMethod.PUT("/:id", summaryByTransactionTypeAndPaymentMethodHandler.Update)
 			summaryByTransactionTypeAndPaymentMethod.DELETE("/:id", summaryByTransactionTypeAndPaymentMethodHandler.Delete)
+		}
+
+		// Bookkeeping CRUD endpoints (JWT required)
+		bookkeeping := api.Group("/bookkeeping")
+		bookkeeping.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			bookkeeping.GET("", bookkeepingHandler.GetAll)
+			bookkeeping.GET("/:id", bookkeepingHandler.GetByID)
+			bookkeeping.GET("/by-location/:location_id", bookkeepingHandler.GetByLocationID)
+			bookkeeping.POST("", bookkeepingHandler.Create)
+			bookkeeping.PUT("/:id", bookkeepingHandler.Update)
+			bookkeeping.DELETE("/:id", bookkeepingHandler.Delete)
 		}
 	}
 
