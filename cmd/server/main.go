@@ -66,9 +66,10 @@ func main() {
 	treatmentHandler := handlers.NewTreatmentHandler(healthCheckDB)
 	treatmentDetailHandler := handlers.NewTreatmentDetailHandler(healthCheckDB)
 	summaryByTransactionTypeHandler := handlers.NewSummaryByTransactionTypeHandler(healthCheckDB)
+	summaryByPaymentMethodHandler := handlers.NewSummaryByPaymentMethodHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -156,6 +157,7 @@ func setupRouter(
 	treatmentHandler *handlers.TreatmentHandler,
 	treatmentDetailHandler *handlers.TreatmentDetailHandler,
 	summaryByTransactionTypeHandler *handlers.SummaryByTransactionTypeHandler,
+	summaryByPaymentMethodHandler *handlers.SummaryByPaymentMethodHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -287,6 +289,18 @@ func setupRouter(
 			summaryByTransactionType.POST("", summaryByTransactionTypeHandler.Create)
 			summaryByTransactionType.PUT("/:id", summaryByTransactionTypeHandler.Update)
 			summaryByTransactionType.DELETE("/:id", summaryByTransactionTypeHandler.Delete)
+		}
+
+		// Summary By Payment Method CRUD endpoints (JWT required)
+		summaryByPaymentMethod := api.Group("/summary-by-payment-method")
+		summaryByPaymentMethod.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			summaryByPaymentMethod.GET("", summaryByPaymentMethodHandler.GetAll)
+			summaryByPaymentMethod.GET("/:id", summaryByPaymentMethodHandler.GetByID)
+			summaryByPaymentMethod.GET("/by-bookkeeping/:bookkeeping_id", summaryByPaymentMethodHandler.GetByBookkeepingID)
+			summaryByPaymentMethod.POST("", summaryByPaymentMethodHandler.Create)
+			summaryByPaymentMethod.PUT("/:id", summaryByPaymentMethodHandler.Update)
+			summaryByPaymentMethod.DELETE("/:id", summaryByPaymentMethodHandler.Delete)
 		}
 	}
 
