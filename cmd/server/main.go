@@ -72,9 +72,10 @@ func main() {
 	bookkeepingDetailHandler := handlers.NewBookkeepingDetailHandler(healthCheckDB)
 	bookkeepingStatusHandler := handlers.NewBookkeepingStatusHandler(healthCheckDB)
 	bookTransactionTypeHandler := handlers.NewBookTransactionTypeHandler(healthCheckDB)
+	bookTransactionCategoryHandler := handlers.NewBookTransactionCategoryHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler, bookTransactionTypeHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler, bookTransactionTypeHandler, bookTransactionCategoryHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -168,6 +169,7 @@ func setupRouter(
 	bookkeepingDetailHandler *handlers.BookkeepingDetailHandler,
 	bookkeepingStatusHandler *handlers.BookkeepingStatusHandler,
 	bookTransactionTypeHandler *handlers.BookTransactionTypeHandler,
+	bookTransactionCategoryHandler *handlers.BookTransactionCategoryHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -366,6 +368,17 @@ func setupRouter(
 			bookTransactionType.POST("", bookTransactionTypeHandler.Create)
 			bookTransactionType.PUT("/:id", bookTransactionTypeHandler.Update)
 			bookTransactionType.DELETE("/:id", bookTransactionTypeHandler.Delete)
+		}
+
+		// Book Transaction Category CRUD endpoints (JWT required)
+		bookTransactionCategory := api.Group("/book-transaction-category")
+		bookTransactionCategory.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			bookTransactionCategory.GET("", bookTransactionCategoryHandler.GetAll)
+			bookTransactionCategory.GET("/:id", bookTransactionCategoryHandler.GetByID)
+			bookTransactionCategory.POST("", bookTransactionCategoryHandler.Create)
+			bookTransactionCategory.PUT("/:id", bookTransactionCategoryHandler.Update)
+			bookTransactionCategory.DELETE("/:id", bookTransactionCategoryHandler.Delete)
 		}
 	}
 
