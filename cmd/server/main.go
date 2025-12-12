@@ -67,9 +67,10 @@ func main() {
 	treatmentDetailHandler := handlers.NewTreatmentDetailHandler(healthCheckDB)
 	summaryByTransactionTypeHandler := handlers.NewSummaryByTransactionTypeHandler(healthCheckDB)
 	summaryByPaymentMethodHandler := handlers.NewSummaryByPaymentMethodHandler(healthCheckDB)
+	summaryByTransactionTypeAndPaymentMethodHandler := handlers.NewSummaryByTransactionTypeAndPaymentMethodHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -158,6 +159,7 @@ func setupRouter(
 	treatmentDetailHandler *handlers.TreatmentDetailHandler,
 	summaryByTransactionTypeHandler *handlers.SummaryByTransactionTypeHandler,
 	summaryByPaymentMethodHandler *handlers.SummaryByPaymentMethodHandler,
+	summaryByTransactionTypeAndPaymentMethodHandler *handlers.SummaryByTransactionTypeAndPaymentMethodHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -301,6 +303,18 @@ func setupRouter(
 			summaryByPaymentMethod.POST("", summaryByPaymentMethodHandler.Create)
 			summaryByPaymentMethod.PUT("/:id", summaryByPaymentMethodHandler.Update)
 			summaryByPaymentMethod.DELETE("/:id", summaryByPaymentMethodHandler.Delete)
+		}
+
+		// Summary By Transaction Type And Payment Method CRUD endpoints (JWT required)
+		summaryByTransactionTypeAndPaymentMethod := api.Group("/summary-by-transaction-type-and-payment-method")
+		summaryByTransactionTypeAndPaymentMethod.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			summaryByTransactionTypeAndPaymentMethod.GET("", summaryByTransactionTypeAndPaymentMethodHandler.GetAll)
+			summaryByTransactionTypeAndPaymentMethod.GET("/:id", summaryByTransactionTypeAndPaymentMethodHandler.GetByID)
+			summaryByTransactionTypeAndPaymentMethod.GET("/by-bookkeeping/:bookkeeping_id", summaryByTransactionTypeAndPaymentMethodHandler.GetByBookkeepingID)
+			summaryByTransactionTypeAndPaymentMethod.POST("", summaryByTransactionTypeAndPaymentMethodHandler.Create)
+			summaryByTransactionTypeAndPaymentMethod.PUT("/:id", summaryByTransactionTypeAndPaymentMethodHandler.Update)
+			summaryByTransactionTypeAndPaymentMethod.DELETE("/:id", summaryByTransactionTypeAndPaymentMethodHandler.Delete)
 		}
 	}
 
