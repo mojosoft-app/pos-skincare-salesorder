@@ -73,9 +73,10 @@ func main() {
 	bookkeepingStatusHandler := handlers.NewBookkeepingStatusHandler(healthCheckDB)
 	bookTransactionTypeHandler := handlers.NewBookTransactionTypeHandler(healthCheckDB)
 	bookTransactionCategoryHandler := handlers.NewBookTransactionCategoryHandler(healthCheckDB)
+	paymentMethodHandler := handlers.NewPaymentMethodHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler, bookTransactionTypeHandler, bookTransactionCategoryHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler, bookTransactionTypeHandler, bookTransactionCategoryHandler, paymentMethodHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -170,6 +171,7 @@ func setupRouter(
 	bookkeepingStatusHandler *handlers.BookkeepingStatusHandler,
 	bookTransactionTypeHandler *handlers.BookTransactionTypeHandler,
 	bookTransactionCategoryHandler *handlers.BookTransactionCategoryHandler,
+	paymentMethodHandler *handlers.PaymentMethodHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -379,6 +381,17 @@ func setupRouter(
 			bookTransactionCategory.POST("", bookTransactionCategoryHandler.Create)
 			bookTransactionCategory.PUT("/:id", bookTransactionCategoryHandler.Update)
 			bookTransactionCategory.DELETE("/:id", bookTransactionCategoryHandler.Delete)
+		}
+
+		// Payment Method CRUD endpoints (JWT required)
+		paymentMethod := api.Group("/payment-method")
+		paymentMethod.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			paymentMethod.GET("", paymentMethodHandler.GetAll)
+			paymentMethod.GET("/:id", paymentMethodHandler.GetByID)
+			paymentMethod.POST("", paymentMethodHandler.Create)
+			paymentMethod.PUT("/:id", paymentMethodHandler.Update)
+			paymentMethod.DELETE("/:id", paymentMethodHandler.Delete)
 		}
 	}
 
