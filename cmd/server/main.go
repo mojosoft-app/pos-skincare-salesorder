@@ -71,9 +71,10 @@ func main() {
 	bookkeepingHandler := handlers.NewBookkeepingHandler(healthCheckDB)
 	bookkeepingDetailHandler := handlers.NewBookkeepingDetailHandler(healthCheckDB)
 	bookkeepingStatusHandler := handlers.NewBookkeepingStatusHandler(healthCheckDB)
+	bookTransactionTypeHandler := handlers.NewBookTransactionTypeHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler, bookTransactionTypeHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -166,6 +167,7 @@ func setupRouter(
 	bookkeepingHandler *handlers.BookkeepingHandler,
 	bookkeepingDetailHandler *handlers.BookkeepingDetailHandler,
 	bookkeepingStatusHandler *handlers.BookkeepingStatusHandler,
+	bookTransactionTypeHandler *handlers.BookTransactionTypeHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -353,6 +355,17 @@ func setupRouter(
 		{
 			bookkeepingStatus.GET("", bookkeepingStatusHandler.GetAll)
 			bookkeepingStatus.GET("/:id", bookkeepingStatusHandler.GetByID)
+		}
+
+		// Book Transaction Type CRUD endpoints (JWT required)
+		bookTransactionType := api.Group("/book-transaction-type")
+		bookTransactionType.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			bookTransactionType.GET("", bookTransactionTypeHandler.GetAll)
+			bookTransactionType.GET("/:id", bookTransactionTypeHandler.GetByID)
+			bookTransactionType.POST("", bookTransactionTypeHandler.Create)
+			bookTransactionType.PUT("/:id", bookTransactionTypeHandler.Update)
+			bookTransactionType.DELETE("/:id", bookTransactionTypeHandler.Delete)
 		}
 	}
 
