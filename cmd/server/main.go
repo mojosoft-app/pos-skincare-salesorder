@@ -65,9 +65,10 @@ func main() {
 	arReceiptDetailHandler := handlers.NewARReceiptDetailHandler(healthCheckDB)
 	treatmentHandler := handlers.NewTreatmentHandler(healthCheckDB)
 	treatmentDetailHandler := handlers.NewTreatmentDetailHandler(healthCheckDB)
+	summaryByTransactionTypeHandler := handlers.NewSummaryByTransactionTypeHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -154,6 +155,7 @@ func setupRouter(
 	arReceiptDetailHandler *handlers.ARReceiptDetailHandler,
 	treatmentHandler *handlers.TreatmentHandler,
 	treatmentDetailHandler *handlers.TreatmentDetailHandler,
+	summaryByTransactionTypeHandler *handlers.SummaryByTransactionTypeHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -273,6 +275,18 @@ func setupRouter(
 			treatmentDetails.POST("", treatmentDetailHandler.Create)
 			treatmentDetails.PUT("/:id", treatmentDetailHandler.Update)
 			treatmentDetails.DELETE("/:id", treatmentDetailHandler.Delete)
+		}
+
+		// Summary By Transaction Type CRUD endpoints (JWT required)
+		summaryByTransactionType := api.Group("/summary-by-transaction-type")
+		summaryByTransactionType.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			summaryByTransactionType.GET("", summaryByTransactionTypeHandler.GetAll)
+			summaryByTransactionType.GET("/:id", summaryByTransactionTypeHandler.GetByID)
+			summaryByTransactionType.GET("/by-bookkeeping/:bookkeeping_id", summaryByTransactionTypeHandler.GetByBookkeepingID)
+			summaryByTransactionType.POST("", summaryByTransactionTypeHandler.Create)
+			summaryByTransactionType.PUT("/:id", summaryByTransactionTypeHandler.Update)
+			summaryByTransactionType.DELETE("/:id", summaryByTransactionTypeHandler.Delete)
 		}
 	}
 
