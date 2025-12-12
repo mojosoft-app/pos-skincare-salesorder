@@ -70,9 +70,10 @@ func main() {
 	summaryByTransactionTypeAndPaymentMethodHandler := handlers.NewSummaryByTransactionTypeAndPaymentMethodHandler(healthCheckDB)
 	bookkeepingHandler := handlers.NewBookkeepingHandler(healthCheckDB)
 	bookkeepingDetailHandler := handlers.NewBookkeepingDetailHandler(healthCheckDB)
+	bookkeepingStatusHandler := handlers.NewBookkeepingStatusHandler(healthCheckDB)
 
 	// Setup Gin router
-	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler)
+	router := setupRouter(cfg, jwtUtil, healthHandler, salesOrderStatusHandler, salesOrderHandler, salesOrderServiceHandler, salesOrderDetailHandler, remindedHandler, arReceiptHandler, arReceiptDetailHandler, treatmentHandler, treatmentDetailHandler, summaryByTransactionTypeHandler, summaryByPaymentMethodHandler, summaryByTransactionTypeAndPaymentMethodHandler, bookkeepingHandler, bookkeepingDetailHandler, bookkeepingStatusHandler)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -164,6 +165,7 @@ func setupRouter(
 	summaryByTransactionTypeAndPaymentMethodHandler *handlers.SummaryByTransactionTypeAndPaymentMethodHandler,
 	bookkeepingHandler *handlers.BookkeepingHandler,
 	bookkeepingDetailHandler *handlers.BookkeepingDetailHandler,
+	bookkeepingStatusHandler *handlers.BookkeepingStatusHandler,
 ) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
@@ -343,6 +345,14 @@ func setupRouter(
 			bookkeepingDetail.POST("", bookkeepingDetailHandler.Create)
 			bookkeepingDetail.PUT("/:id", bookkeepingDetailHandler.Update)
 			bookkeepingDetail.DELETE("/:id", bookkeepingDetailHandler.Delete)
+		}
+
+		// Bookkeeping Status READ-ONLY endpoints (JWT required)
+		bookkeepingStatus := api.Group("/bookkeeping-status")
+		bookkeepingStatus.Use(middleware.AuthMiddleware(jwtUtil))
+		{
+			bookkeepingStatus.GET("", bookkeepingStatusHandler.GetAll)
+			bookkeepingStatus.GET("/:id", bookkeepingStatusHandler.GetByID)
 		}
 	}
 
